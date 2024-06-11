@@ -1,0 +1,21 @@
+<app-header></app-header>
+<mat-toolbar color="primary">
+    <span class="title">All Problems</span>
+</mat-toolbar>
+
+<div class="container">
+    <mat-card *ngFor="let problem of problems; let i = index" class="problem-card">
+        <mat-card-content class="problem-item">
+            <div class="problem-info">
+                {{i + 1}}.
+                <a [routerLink]="['/problem', problem.id]" matLine>{{
+                    problem.title }}</a>
+            </div>
+            <span class="difficulty"
+                [ngClass]="{'easy': problem.difficulty === 'Easy', 'medium': problem.difficulty === 'Medium', 'hard': problem.difficulty === 'Hard'}">
+                {{ problem.difficulty }}
+            </span>
+        </mat-card-content>
+        <mat-divider></mat-divider>
+    </mat-card>
+</div>
