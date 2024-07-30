@@ -45,6 +45,9 @@ export class LoginComponent {
     this.loginService.login({username: this.username, password: this.password}).subscribe(
       response => {
         console.log('Login successful', response);
+
+        localStorage.setItem('access_token', response.token.access);
+        localStorage.setItem('refresh_token', response.token.refresh);
         this.router.navigate(['/home-component']);
       },
       error => {

@@ -4,6 +4,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 
+
 @Component({
   selector: 'app-header',
   standalone: true,
@@ -21,6 +22,8 @@ export class HeaderComponent {
   logout() {
     // Perform logout logic here
     console.log('Logging out');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
     // Redirect to the login page after logout
     this.router.navigate(['/login-component']);
   }
