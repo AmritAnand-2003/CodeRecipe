@@ -45,7 +45,7 @@ An online judge platform hosting coding problems and challenges. Users solve a s
 2. docker container run -p 8000:8000 --name c1 c948c83e4877
 
 
-3. docker login registry.e2enetworks.net -u amrit.anand+playwright@e2enetworks.com -p
+3. docker login registry.e2enetworks.net -u username -p
    (Enter Password)
 
 4. docker tag online_judge:v2 registry.e2enetworks.net/cr-149/online_judge:v2 
