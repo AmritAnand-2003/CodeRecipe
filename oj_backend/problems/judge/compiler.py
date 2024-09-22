@@ -13,7 +13,7 @@ class Compiler:
         print("language ", language)
         print("code ", code)
         print("input_data ", input_data)
-        if language not in ["c", "c++", "python"]:
+        if language not in ["c", "cpp", "python"]:
             return Response(
                 {"error": "Invalid language"}, status=400
             )
@@ -40,13 +40,14 @@ class Compiler:
 
         with open(code_file_path, 'w') as code_file:
             code_file.write(code)
+        input_data = input_data.replace(' ', '\n')
         with open(input_file_path, 'w') as input_file:
             input_file.write(input_data)
         with open(output_file_path, 'w') as output_file:
             pass
 
-        if language == 'c++':
-            print("in c++")
+        if language == 'cpp':
+            print("in cpp")
             executable_path = codes_dir / unique
             compile_result = subprocess.run(
                 ['clang++', str(code_file_path), '-o', str(executable_path)]
@@ -55,7 +56,7 @@ class Compiler:
             if compile_result.returncode == 0:
                 with open(input_file_path, 'r') as input_file:
                     with open(output_file_path, 'w') as output_file:
-                        print("running c++ code")
+                        print("running cpp code")
                         subprocess.run(
                             [str(executable_path)], 
                             stdin=input_file, 

@@ -9,4 +9,6 @@ urlpatterns = [
     path('submit/', views.SubmitCodeAPIView.as_view(), name='submit'),
     path('run/', views.RunCodeAPIView.as_view(), name='run'),
     path('problems/<str:id>/', views.ProblemDetailAPIView.as_view(), name='problem-detail'),
+    path('add-tag/', views.AddTagAPIView.as_view(), name='add-tag'),
+    path('tags/', views.TagListAPIView.as_view(), name='tags'),
 ]

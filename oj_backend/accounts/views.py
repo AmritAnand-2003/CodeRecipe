@@ -9,7 +9,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class UserRegisterView(APIView):
     # queryset = User.objects.all()
-    # authentication_classes = [JWTAuthentication]  # Use JWT authentication
+    authentication_classes = []
     permission_classes = [AllowAny]
     serializer_class = UserSerializer
     def post(self, request):
@@ -19,9 +19,11 @@ class UserRegisterView(APIView):
             serializer.save()
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
-    
+
+
 class UserLoginView(APIView):
     permission_classes = [AllowAny]
+    authentication_classes = []
     queryset = User.objects.all()
     serializer_class = UserLoginSerializer
     def post(self, request):
@@ -41,3 +43,41 @@ class UserLoginView(APIView):
         print("serializer: ", serializer)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=201)
+
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    def get(self, request):
+        user = request.user
+        return Response({
+            "username": user.username,
+            "email": user.email
+        })
+
+class GuestLoginView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+    def post(self, request):
+        data = {
+            "username": "Guest",
+            "password": "guest"
+        }
+        serializer = UserLoginSerializer(data=data)
+        if(serializer.is_valid()):
+            print("serializer: ", serializer)
+            print("serializer: ", serializer.data)
+            return Response(serializer.validated_data, status=201)
+        return Response(serializer.errors, status=400)
+
+class UserDetailsView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    def get(self, request):
+        user = request.user
+        u = User.objects.get(username=user.username)
+        return Response({
+            "firstname": u.first_name,
+            "lastname": u.last_name,
+            "username": u.username,
+            "email": u.email
+        })

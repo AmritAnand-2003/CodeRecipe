@@ -2,6 +2,7 @@ FROM python:3.9
 WORKDIR /online_judge
 COPY . /online_judge
 
+RUN apt-get update && apt-get install -y clang 
 RUN pip install --no-cache django
 RUN pip install --no-cache djangorestframework
 RUN pip install --no-cache djangorestframework-simplejwt
