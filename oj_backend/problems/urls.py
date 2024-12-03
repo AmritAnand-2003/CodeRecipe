@@ -11,4 +11,6 @@ urlpatterns = [
     path('problems/<str:id>/', views.ProblemDetailAPIView.as_view(), name='problem-detail'),
     path('add-tag/', views.AddTagAPIView.as_view(), name='add-tag'),
     path('tags/', views.TagListAPIView.as_view(), name='tags'),
+    path('submissionsAll/', views.SubmissionListAPIView.as_view(), name='submissions'),
+    path('submissionsUser/', views.UserSubmissionListAPIView.as_view(), name='user-submissions'),
 ]

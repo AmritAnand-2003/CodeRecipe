@@ -17,6 +17,9 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormField } from '@angular/material/form-field';
+import { PageEvent } from '@angular/material/paginator';
+import { MatPaginatorModule } from '@angular/material/paginator';
+
 
 
 interface Tag {
@@ -41,8 +44,8 @@ interface Tag {
     MatSlideToggleModule,
     FormsModule,
     MatInputModule,
-    MatFormField
-
+    MatFormField,
+    MatPaginatorModule
 
   ],
   templateUrl: './home.component.html',
@@ -58,18 +61,23 @@ export class HomeComponent implements OnInit {
   difficulties = ['Easy', 'Medium', 'Hard'];
   hideTags: boolean = false;
   searchQuery: string = '';          // Search input (Define this property)
+  totalProblems = 0;
+  currentPage = 1;
+  problemsPerPage: number = 4;
   constructor(private problemService: ProblemService) { }
   ngOnInit(): void {
-    this.problemService.getProblems().subscribe(
-      (data) => {
-        console.log(data)
-        this.problems = data;
-        this.filteredProblems = data;
-      },
-      (error) => {
-        console.error('Error fetching problems', error);
-      }
-    );
+    this.getProblems(this.currentPage);
+
+    // this.problemService.getProblems(this.currentPage).subscribe(
+    //   (data) => {
+    //     console.log(data)
+    //     this.problems = data;
+    //     this.filteredProblems = data;
+    //   },
+    //   (error) => {
+    //     console.error('Error fetching problems', error);
+    //   }
+    // );
     this.problemService.getTags().subscribe(
       (data) => {
         console.log(data)
@@ -77,6 +85,20 @@ export class HomeComponent implements OnInit {
       },
       (error) => {
         console.error('Error fetching tags', error);
+      }
+    );
+  }
+
+  getProblems(page: number) {
+    this.problemService.getProblems(page).subscribe(
+      (data) => {
+        console.log(data)
+        this.problems = data.problems;
+        this.filteredProblems = data.problems;
+        this.totalProblems = data.total_problems;
+      },
+      (error) => {
+        console.error('Error fetching problems', error);
       }
     );
   }
@@ -107,5 +129,11 @@ export class HomeComponent implements OnInit {
       const order: { [key: string]: number } = { 'Easy': 1, 'Medium': 2, 'Hard': 3 };
       this.filteredProblems.sort((a, b) => order[a.difficulty] - order[b.difficulty]);
     }
+  }
+
+  onPageChange(event: PageEvent) {
+    this.currentPage = event.pageIndex + 1;  // Paginator starts from 0
+    this.problemsPerPage = event.pageSize; 
+    this.getProblems(this.currentPage);
   }
 }

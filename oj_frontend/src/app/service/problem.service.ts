@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -10,8 +10,8 @@ export class ProblemService {
   private baseUrl: string = "http://127.0.0.1:8000"
   constructor(private http: HttpClient) { }
 
-  getProblems(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/main/problems/`)
+  getProblems(page: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/main/problems/?page=${page}`)
   }
 
   getProblemById(id: string): Observable<any> {
@@ -25,5 +25,15 @@ export class ProblemService {
   }
   getTags(): Observable<any> {
     return this.http.get(`${this.baseUrl}/main/tags/`)
+  }
+
+  getUserSubmissions(id: string): Observable<any> {
+    const params = new HttpParams().set('id', id);
+    return this.http.get(`${this.baseUrl}/main/submissionsUser/`, {params})
+  }
+
+  getProblemSubmissions(id: string): Observable<any> {
+    const params = new HttpParams().set('id', id); 
+    return this.http.get(`${this.baseUrl}/main/submissionsAll/`, {params})
   }
 }

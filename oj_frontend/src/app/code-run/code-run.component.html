@@ -43,10 +43,24 @@
 
                     <mat-form-field appearance="fill" class="full-width">
                         <mat-label>Output</mat-label>
-                        <textarea matInput [(ngModel)]="output" rows="8" readonly></textarea>
-                        <div *ngIf="!output" class="output-placeholder">
+                        <textarea matInput [(ngModel)]="output" rows="2" readonly ></textarea>
+                        <span *ngIf="!output && !error" class="output-placeholder">
                             Click on RUN button to see the output
-                        </div>
+                        </span>
+                        <span *ngIf="error" class="error-message">
+                            <mat-icon color="warn">warning</mat-icon> {{ cleanError }}
+                        </span>
+                        <!-- <textarea matInput [(ngModel)]="output" rows="8" readonly *ngIf="output"></textarea> -->
+
+                        <!-- Show error in the same place if there is an error -->
+                        <!-- <div class="error-message" *ngIf="!output && error">
+                            <mat-icon color="warn">warning</mat-icon> {{ error }}
+                        </div> -->
+
+                        <!-- Placeholder when no output or error is present -->
+                        <!-- <div class="output-placeholder" *ngIf="!output && !error">
+                            Click on RUN button to see the output
+                        </div> -->
                     </mat-form-field>
                 </div>
             </div>

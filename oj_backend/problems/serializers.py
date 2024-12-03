@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Problem, TestCases, Submission, RunCode, Tag
+from .models import Problem, TestCases, Submission, RunCode, Tag, Example
 
 
 class ProblemSerializer(serializers.ModelSerializer):
@@ -7,7 +7,7 @@ class ProblemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Problem
-        fields = ['id', 'title', 'description', 'difficulty', 'tag_names']  # Exclude 'tags'
+        fields = ['id', 'title', 'description', 'difficulty', 'tag_names', 'constraints']  # Exclude 'tags'
 
     def get_tag_names(self, obj):
         # Explicitly return tag names
@@ -29,7 +29,7 @@ class AddTestCaseSeriallzer(serializers.ModelSerializer):
 class SubmissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submission
-        fields = ['problem', 'language', 'code']
+        fields = "__all__"
 
 class RunCodeSerializer(serializers.ModelSerializer):
     # code = serializers.CharField()
@@ -46,3 +46,8 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = "__all__"
+
+class ExampleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Example
+        fields = "__all__" 

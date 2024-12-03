@@ -11,6 +11,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../header/header.component';
 import { MatToolbar } from '@angular/material/toolbar';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTableModule } from '@angular/material/table';
+
 
 @Component({
   selector: 'app-problem',
@@ -25,19 +28,32 @@ import { MatToolbar } from '@angular/material/toolbar';
     MatButtonModule,
     FormsModule,
     HeaderComponent,
-    MatToolbar
+    MatToolbar,
+    MatTabsModule,
+    MatTableModule
   ],
   templateUrl: './problem.component.html',
   styleUrl: './problem.component.css'
 })
-export class ProblemComponent implements OnInit{
+export class ProblemComponent implements OnInit {
   problem: any;
   language: string = 'python';
   code: string = '';
   input_data: string = '';
   output: string = '';
-  constructor(private route: ActivatedRoute, private problemService: ProblemService) {}
-
+  languageSamples: { [key: string]: string } = {
+    'python': `print('Hello, world!')`,
+    'c++': `#include <iostream>\nusing namespace std; \n\nint main() {\n\t cout << "Hello, world!" <<endl;\n\t return 0;\n }`,
+    'c': `#include <stdio.h> \n\nint main() {\n\tprintf("Hello, world!"); \n\treturn 0;\n}`
+  };
+  // examples: any[]
+  mySubmissions: any[] = [];
+  allSubmissions: any[] = [];
+  constructor(private route: ActivatedRoute, private problemService: ProblemService) {
+    this.setSampleCode(this.language);
+    console.log("Problem component initialized");
+    console.log(this.code);
+  }
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     this.problemService.getProblemById(id!).subscribe(
@@ -46,6 +62,16 @@ export class ProblemComponent implements OnInit{
         this.problem = data;
       },
       (error) => {
+        console.error('Error fetching problems', error);
+      }
+    );
+    this.problemService.getProblemSubmissions(id!).subscribe(
+      (data) => {
+        console.log(data)
+        this.allSubmissions = data;
+        this.mySubmissions = data.filter((submission: any) => submission.problem === id);
+      },
+      (error: any) => {
         console.error('Error fetching problems', error);
       }
     );
@@ -62,7 +88,7 @@ export class ProblemComponent implements OnInit{
     this.problemService.runCode(codeData).subscribe(
       (data) => {
         console.log(data)
-        this.output = data;
+        this.output = data.output;
       },
       (error) => {
         console.error('Error fetching problems', error);
@@ -87,5 +113,19 @@ export class ProblemComponent implements OnInit{
         console.error('Error fetching problems', error);
       }
     );
+  }
+
+  viewSubmission(submission: any): void {
+    console.log('Viewing submission:', submission);
+  }
+
+  setSampleCode(language: string) {
+    this.code = this.languageSamples[language] || '';
+  }
+
+  onLanguageChange(language: string) {
+    console.log('Language changed:', language);
+    this.language = language;
+    this.setSampleCode(language);
   }
 }

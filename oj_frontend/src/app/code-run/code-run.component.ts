@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
 import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 import { AngularSplitModule } from 'angular-split';
 import { MatDividerModule } from '@angular/material/divider';
+import { ProblemService } from '../service/problem.service';
 
 
 
@@ -46,8 +47,11 @@ export class CodeRunComponent {
   code: string = '';
   input: string = '';
   output: string = '';
+  error: string = '';
+  cleanError: string = '';
   selectedLanguage: string = 'Python';
   languages: string[] = ['Python', 'C++', 'C'];
+  languageMap: { [key: string]: string } = { 'Python': 'python', 'C++': 'c++', 'C': 'c' };
   isResizing: boolean = false;
 
   languageSamples: { [key: string]: string } = {
@@ -59,6 +63,24 @@ export class CodeRunComponent {
   runCode() {
     // Logic to execute the code based on the selected language
     this.output = `Running code in ${this.selectedLanguage}...`;
+    console.log('Running code:', this.code);
+    // Implement the logic to run the code
+    const codeData = {
+      code: this.code,
+      language: this.languageMap[this.selectedLanguage],
+      input_data: this.input
+    }
+    this.problemService.runCode(codeData).subscribe(
+      (data) => {
+        console.log(data)
+        this.error = data.error;
+        this.cleanError = (this.error.replace(/^.*?line \d+\n/, '').trim()).replace(/^.*?:\d+:\d+:\s/, '');
+        this.output = data.output;
+      },
+      (error) => {
+        console.error('Error fetching problems', error);
+      }
+    );
   }
 
   startResizing(event: MouseEvent) {
@@ -69,7 +91,7 @@ export class CodeRunComponent {
   startY: number = 0;
   startHeight: number = 0;
 
-  constructor(private elRef: ElementRef) {
+  constructor(private elRef: ElementRef, private problemService: ProblemService) {
     this.setSampleCode(this.selectedLanguage); 
   }
 

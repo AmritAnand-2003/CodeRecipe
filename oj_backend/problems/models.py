@@ -24,6 +24,7 @@ class Problem(models.Model):
         choices=DIFFICULTY_CHOICES,
     )
     tags = models.ManyToManyField(Tag, related_name='problems')
+    constraints = models.TextField(blank=True)
     def __str__(self):
         return f"{self.id}"
     
@@ -46,3 +47,12 @@ class TestCases(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     input_data = models.TextField(null=True, blank=True)
     output_data = models.TextField(null=True, blank=True)
+
+class Example(models.Model):
+    problem = models.ForeignKey(Problem, related_name='examples', on_delete=models.CASCADE)
+    input = models.TextField()
+    output = models.TextField()
+    explanation = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"Example for {self.problem.title}"

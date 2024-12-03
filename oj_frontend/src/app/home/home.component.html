@@ -87,7 +87,7 @@
                 </div> -->
                 <div class="problem-info">
                     <!-- Question Title -->
-                    <span class="problem-index">{{ i + 1 }}.</span>
+                    <span class="problem-index">{{ i + 1 + (currentPage - 1) * problemsPerPage }}.</span>
                     <a [routerLink]="['/problem', problem.id]" class="problem-title" matLine>
                         {{ problem.title }}
                     </a>
@@ -114,5 +114,8 @@
             </mat-card-content>
             <mat-divider></mat-divider>
         </mat-card>
+        
     </div>
+    <mat-paginator [length]="totalProblems" [pageSize]="problemsPerPage" (page)="onPageChange($event)" aria-label="Select page">
+    </mat-paginator>
 </div>

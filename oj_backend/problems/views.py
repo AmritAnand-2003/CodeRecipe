@@ -2,13 +2,14 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from .models import Problem, TestCases, Submission, Tag
-from .serializers import ProblemSerializer, AddProblemSerializer, AddTestCaseSeriallzer, SubmissionSerializer, RunCodeSerializer, TagSerializer
+from .models import Problem, TestCases, Submission, Tag, Example
+from .serializers import ProblemSerializer, AddProblemSerializer, AddTestCaseSeriallzer, SubmissionSerializer, RunCodeSerializer, TagSerializer, ExampleSerializer
 from rest_framework.response import Response
 from .judge.compiler import Compiler
 from .judge.judge import Judge
 from rest_framework.permissions import AllowAny
 from datetime import datetime
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 compiler = Compiler()
 judge = Judge()
 # Create your views here.
@@ -48,8 +49,22 @@ class ProblemListAPIView(APIView):
 
     def get(self, request):
         problems = Problem.objects.all()
-        serializer = ProblemSerializer(problems, many=True)
-        return Response(serializer.data, status = 201)
+        page = request.GET.get('page', 1)
+        paginator = Paginator(problems, 4)
+        try:
+            paginated_problems = paginator.page(page)  # Get the specific page
+        except PageNotAnInteger:
+            paginated_problems = paginator.page(1)  # Default to page 1 if page is not an integer
+        except EmptyPage:
+            paginated_problems = paginator.page(paginator.num_pages)
+        serializer = ProblemSerializer(paginated_problems, many=True)
+        return Response({
+            'problems': serializer.data,  # Paginated problem data
+            'total_pages': paginator.num_pages,  # Total number of pages
+            'current_page': paginated_problems.number,  # Current page number
+            'total_problems': paginator.count
+        }, status=200)
+        # return Response(serializer.data, status = 201)
     
 
     
@@ -60,12 +75,17 @@ class ProblemDetailAPIView(APIView):
     permission_classes = [AllowAny]  # Require authentication to access the API
 
     def get(self, request, *args, **kwargs):
+        # breakpoint()
         problem_id = self.kwargs['id']
         problem = Problem.objects.get(id=problem_id)
         serializer = ProblemSerializer(problem)
         print(serializer)
         print(serializer.data)
-        return Response(serializer.data, status=201)
+        examples = Example.objects.filter(problem=problem)
+        examples_serializer = ExampleSerializer(examples, many=True)
+        response_data = serializer.data
+        response_data['examples'] = examples_serializer.data
+        return Response(response_data, status=201)
     # authentication_classes = [JWTAuthentication]  # Use JWT authentication
     # permission_classes = [IsAuthenticated]
 
@@ -135,8 +155,8 @@ class RunCodeAPIView(APIView):
             code = serializer.data["code"]
             input_data = serializer.data.get("input_data", "")
             print(language, code, input_data)
-            output = compiler.run_code(language=language, code=code, input_data=input_data)
-            return Response(output, status=201)
+            res = compiler.run_code(language=language, code=code, input_data=input_data)
+            return Response(res, status=201)
         return Response(serializer.errors, status=400)
     
 class AddTagAPIView(APIView):
@@ -161,3 +181,27 @@ class TagListAPIView(APIView):
         serializer = TagSerializer(tags, many=True)
         return Response(serializer.data, status=201)
     
+class SubmissionListAPIView(APIView):
+    # authentication_classes = [JWTAuthentication]  # Use JWT authentication
+    # permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
+    serializer_class = SubmissionSerializer
+    def get(self, request):
+        problem_id = self.kwargs['id']
+        problem = Problem.objects.get(id=problem_id)
+        submissions = Submission.objects.filter(problem=problem)
+        serializer = SubmissionSerializer(submissions, many=True)
+        return Response(serializer.data, status=201)
+    
+class UserSubmissionListAPIView(APIView):
+    # authentication_classes = [JWTAuthentication]  # Use JWT authentication
+    # permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
+    serializer_class = SubmissionSerializer
+    def get(self, request):
+        user = request.user
+        problem_id = self.kwargs['id']
+        problem = Problem.objects.get(id=problem_id)
+        submissions = Submission.objects.filter(user=user, problem=problem)
+        serializer = SubmissionSerializer(submissions, many=True)
+        return Response(serializer.data, status=201)
